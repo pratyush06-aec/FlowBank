@@ -13,13 +13,20 @@ def seed():
     db = SessionLocal()
     
     # Check if user exists
-    user_id = "test_user_001"
+    user_id = os.getenv("BANK_OS_ACCOUNT_ADDRESS")
+    if not user_id:
+        user_id = input("Enter your wallet address to seed: ").strip()
+        
+    if not user_id:
+        print("No wallet address provided. Exiting.")
+        return
+
     user = db.query(domain.User).filter(domain.User.id == user_id).first()
     if user:
-        print("Database already seeded.")
+        print(f"Database already seeded for {user_id}.")
         return
         
-    print("Seeding database...")
+    print(f"Seeding database for {user_id}...")
     user = domain.User(id=user_id)
     db.add(user)
     

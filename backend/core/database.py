@@ -5,15 +5,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Use Neon DB URL from environment, fallback to local SQLite for quick dev without internet
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./bankos.db")
+# Strictly use Neon DB URL from environment for production and persistent state
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not SQLALCHEMY_DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is not set. A Serverless PostgreSQL connection string is required.")
 
 connect_args = {}
 if "postgresql" in SQLALCHEMY_DATABASE_URL:
     # Neon DB connection pooling and SSL requirements
     connect_args = {"sslmode": "require"}
-elif "sqlite" in SQLALCHEMY_DATABASE_URL:
-    connect_args = {"check_same_thread": False}
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args=connect_args

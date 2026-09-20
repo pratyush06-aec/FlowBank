@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ConnectWallet } from '@/components/ConnectWallet';
-import { useSendTransaction } from 'wagmi';
+import { useSendTransaction, useAccount } from 'wagmi';
 
 interface FinancialState {
   total_liquid_cash: number;
@@ -11,6 +11,7 @@ interface FinancialState {
 }
 
 export default function Home() {
+  const { address, isConnected } = useAccount();
   const [finState, setFinState] = useState<FinancialState | null>(null);
   const [simPrompt, setSimPrompt] = useState('');
   const [simResult, setSimResult] = useState<string | null>(null);
@@ -22,18 +23,25 @@ export default function Home() {
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   useEffect(() => {
-    fetch(`${API_BASE}/financial-state/test_user_001`)
+    if (!isConnected || !address) {
+      setFinState(null);
+      return;
+    }
+    fetch(`${API_BASE}/financial-state/${address}`)
       .then(res => res.json())
       .then(data => setFinState(data))
       .catch(console.error);
-  }, []);
+  }, [isConnected, address, API_BASE]);
 
   const handleSimulate = async () => {
-    if (!simPrompt) return;
+    if (!simPrompt || !address) {
+      if (!address) setSimResult("Please connect your wallet first.");
+      return;
+    }
     setIsLoading(true);
     setSimResult(null);
     try {
-      const res = await fetch(`${API_BASE}/copilot/test_user_001`, {
+      const res = await fetch(`${API_BASE}/copilot/${address}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: simPrompt })
@@ -71,9 +79,13 @@ export default function Home() {
   const { sendTransactionAsync } = useSendTransaction();
 
   const handleOptimize = async () => {
+    if (!address) {
+      setOptResult("Please connect your wallet first.");
+      return;
+    }
     setOptLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/copilot/test_user_001`, {
+      const res = await fetch(`${API_BASE}/copilot/${address}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: "Supply 15000 USDC to Aave" })
@@ -98,7 +110,7 @@ export default function Home() {
       }
       
       // Refresh state
-      const stateRes = await fetch(`${API_BASE}/financial-state/test_user_001`);
+      const stateRes = await fetch(`${API_BASE}/financial-state/${address}`);
       setFinState(await stateRes.json());
     } catch (e: any) {
       setOptResult("Oops, it seems our AI Copilot is taking a quick coffee break. Please check your network connection and try again.");
