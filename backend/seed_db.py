@@ -20,7 +20,7 @@ def seed():
     parser.add_argument("--wallet", help="Your connected MetaMask wallet address")
     args = parser.parse_args()
 
-    user_id = args.wallet
+    user_id = args.wallet or os.getenv("BANK_OS_ACCOUNT_ADDRESS")
     if not user_id:
         user_id = input("Enter your MetaMask wallet address to seed (e.g., 0x...): ").strip()
         
