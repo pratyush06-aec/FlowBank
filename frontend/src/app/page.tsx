@@ -19,8 +19,10 @@ export default function Home() {
 
   const [optResult, setOptResult] = useState<string | null>(null);
 
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
   useEffect(() => {
-    fetch('http://localhost:8000/financial-state/test_user_001')
+    fetch(`${API_BASE}/financial-state/test_user_001`)
       .then(res => res.json())
       .then(data => setFinState(data))
       .catch(console.error);
@@ -31,7 +33,7 @@ export default function Home() {
     setIsLoading(true);
     setSimResult(null);
     try {
-      const res = await fetch('http://localhost:8000/copilot/test_user_001', {
+      const res = await fetch(`${API_BASE}/copilot/test_user_001`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: simPrompt })
@@ -71,7 +73,7 @@ export default function Home() {
   const handleOptimize = async () => {
     setOptLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/copilot/test_user_001', {
+      const res = await fetch(`${API_BASE}/copilot/test_user_001`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: "Supply 15000 USDC to Aave" })
@@ -96,7 +98,7 @@ export default function Home() {
       }
       
       // Refresh state
-      const stateRes = await fetch('http://localhost:8000/financial-state/test_user_001');
+      const stateRes = await fetch(`${API_BASE}/financial-state/test_user_001`);
       setFinState(await stateRes.json());
     } catch (e: any) {
       setOptResult("Oops, it seems our AI Copilot is taking a quick coffee break. Please check your network connection and try again.");
