@@ -1,0 +1,44 @@
+# Environments
+.env
+.env.local
+.env.*.local
+
+# Python
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env.bak/
+venv.bak/
+
+# Database
+*.sqlite3
+*.db
+bankos.db
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+build/
+
+# Hardhat
+cache/
+artifacts/
+typechain/
+typechain-types/
+coverage/
+coverage.json
+
+# OS
+.DS_Store
+Thumbs.db
