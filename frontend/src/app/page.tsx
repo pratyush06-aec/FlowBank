@@ -38,6 +38,12 @@ export default function Home() {
       if (!address) setSimResult("Please connect your wallet first.");
       return;
     }
+    
+    if (finState && finState.net_position === 0) {
+      setSimResult("Analysis is not possible with a ₹0 balance. The Financial Time Machine will function normally once your account is properly funded.");
+      return;
+    }
+
     setIsLoading(true);
     setSimResult(null);
     try {
@@ -83,6 +89,12 @@ export default function Home() {
       setOptResult("Please connect your wallet first.");
       return;
     }
+    
+    if (finState && finState.net_position === 0) {
+      setOptResult("Analysis is not possible with a ₹0 balance. The AI Copilot will function normally once your account is properly funded.");
+      return;
+    }
+
     setOptLoading(true);
     try {
       const res = await fetch(`${API_BASE}/copilot/${address}`, {
