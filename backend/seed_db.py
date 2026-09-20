@@ -15,19 +15,31 @@ def seed():
     domain.Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     
-    # Check if user exists
-    user_id = os.getenv("BANK_OS_ACCOUNT_ADDRESS")
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--wallet", help="Your connected MetaMask wallet address")
+    args = parser.parse_args()
+
+    user_id = args.wallet
     if not user_id:
-        user_id = input("Enter your wallet address to seed: ").strip()
+        user_id = input("Enter your MetaMask wallet address to seed (e.g., 0x...): ").strip()
         
     if not user_id:
         print("No wallet address provided. Exiting.")
         return
 
+    # Clear old data to force a refresh
     user = db.query(domain.User).filter(domain.User.id == user_id).first()
     if user:
-        print(f"Database already seeded for {user_id}.")
-        return
+        print(f"Refreshing data for {user_id}...")
+        db.query(domain.Asset).filter(domain.Asset.user_id == user_id).delete()
+        db.query(domain.DeFiPosition).filter(domain.DeFiPosition.user_id == user_id).delete()
+        db.query(domain.ExpenseEvent).filter(domain.ExpenseEvent.user_id == user_id).delete()
+        db.query(domain.IncomeEvent).filter(domain.IncomeEvent.user_id == user_id).delete()
+        db.query(domain.Policy).filter(domain.Policy.user_id == user_id).delete()
+        db.query(domain.FinancialProfile).filter(domain.FinancialProfile.user_id == user_id).delete()
+        db.delete(user)
+        db.commit()
         
     print(f"Seeding database for {user_id}...")
     user = domain.User(id=user_id)
@@ -39,12 +51,12 @@ def seed():
         risk_profile="moderate",
         minimum_liquidity=40000,
         emergency_reserve=20000,
-        max_defi_exposure=50.0,
+        max_defi_exposure=75.0,
         max_autonomous_transaction=10000
     )
     db.add(profile)
     
-    liquid = domain.Asset(id=str(uuid.uuid4()), user_id=user_id, asset_symbol="USDC", amount=55000, value_usd=55000, source="wallet")
+    liquid = domain.Asset(id=str(uuid.uuid4()), user_id=user_id, asset_symbol="USDC", amount=50000, value_usd=50000, source="wallet")
     db.add(liquid)
     
     defi = domain.DeFiPosition(id=str(uuid.uuid4()), user_id=user_id, protocol="AAVE", asset_symbol="USDC", amount=45000, value_usd=45000, apy=5.2)
