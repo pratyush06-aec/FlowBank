@@ -16,6 +16,8 @@ The system leverages a large language model (LLM) to parse user goals (e.g., "Su
 
 ## 🏗 System Architecture
 
+![FlowBank System Architecture](./assets/architecture.png)
+
 FlowBank consists of three main pillars:
 
 1. **Frontend (Next.js + Tailwind CSS + Wagmi)**
